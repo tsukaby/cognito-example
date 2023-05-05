@@ -9,13 +9,17 @@
 ```
 cd frontend
 yarn install
-cp frontend/.env.local.sample frontend/.env.local`
-vi frontend/.env.local
+cp .env.local.sample .env.local`
+vi .env.local
 ```
 
 ## Setup backend
 
-Nothing
+```
+cd backend
+cp .env.local.sample .env.local`
+vi .env.local
+```
 
 ## Run
 

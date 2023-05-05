@@ -11,12 +11,23 @@ const inter = Inter({ subsets: ['latin'] })
 export default function Dashboard() {
   const router = useRouter();
   const [user, setUser] = useState<CognitoUserSession | undefined>(undefined);
+  const [items, setItems] = useState([]);
+  const [statusCode, setStatusCode] = useState(0);
 
   useEffect(() => {
     const fetchData = async () => {
       await Auth.currentAuthenticatedUser().then(() => {
-        Auth.currentSession().then((userSession) => {
+        Auth.currentSession().then(async (userSession) => {
           setUser(userSession);
+          const response = await fetch('/api/v1/items', {
+            headers: {
+              'Authorization': `Bearer ${userSession.getAccessToken().getJwtToken()}`
+            },
+          });
+
+          const jsonResponse = await response.json();
+          setStatusCode(response.status);
+          setItems(jsonResponse);
         }).catch((error) => {
           console.warn(error);
           router.push('/');
@@ -46,6 +57,12 @@ export default function Dashboard() {
         <h1>Dashboard</h1>
         <hr />
         <Menu />
+        <hr />
+        <h2>GET /api/v1/items</h2>
+        <div>Status code: {statusCode}</div>
+        <pre>
+          {JSON.stringify(items, null, 2)}
+        </pre>
         <hr />
         <h2>Debug info</h2>
         <div>
