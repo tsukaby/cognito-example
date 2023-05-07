@@ -16,8 +16,10 @@ export const Menu = () => {
       <h2>Menu</h2>
       <ul>
         <li><Link href="/">/</Link></li>
-        <li><Link href="/private">/dashboard</Link></li>
+        <li><Link href="/private">/private</Link></li>
+        <li><Link href="/private/setup_totp">/private/setup_totp</Link></li>
         <li><Link href="/reset_password">/reset_password</Link></li>
+
         <li><button onClick={logout}>Logout</button></li>
       </ul>
     </div>

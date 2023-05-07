@@ -11,7 +11,18 @@ export default function Home() {
   const [mode, setMode] = useState<string>('');
   const [cognitoUser, setCognitoUser] = useState<CognitoUser | undefined>(undefined);
 
-  const contents = mode === 'NEW_PASSWORD_REQUIRED' ? ResetPasswordForm({setMode, cognitoUser}) : LoginForm({setMode, setCognitoUser});
+  let contents = null;
+  switch (mode) {
+    case 'NEW_PASSWORD_REQUIRED':
+      contents = ResetPasswordForm({setMode, cognitoUser});
+      break;
+    case 'SOFTWARE_TOKEN_MFA':
+      contents = MfaForm({cognitoUser});
+      break;
+    default:
+      contents = LoginForm({setMode, setCognitoUser});
+      break;
+  }
 
   return (
     <>
@@ -106,6 +117,8 @@ const LoginForm: React.FC<{
 
       if (user.challengeName === 'NEW_PASSWORD_REQUIRED') {
         setMode(user.challengeName);
+      } else if (user.challengeName === "SOFTWARE_TOKEN_MFA") {
+        setMode(user.challengeName);
       } else {
         router.push('/private');
       }
@@ -127,6 +140,46 @@ const LoginForm: React.FC<{
           <div>
             <label htmlFor="password">Password</label>
             <input type="password" id="password" name="password" />
+          </div>
+          <div>
+            <button type="submit">Login</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
+}
+
+const MfaForm: React.FC<{
+  cognitoUser: CognitoUser | undefined;
+}> = ({cognitoUser}) => {
+  const router = useRouter();
+
+  const handleSubmit = async (event: any) => {
+    console.log('MfaForm:handleSubmit');
+
+    event.preventDefault();
+
+    const code = event.target.code.value;
+
+    try {
+      const user = await Auth.confirmSignIn(cognitoUser, code, 'SOFTWARE_TOKEN_MFA');
+      console.log(user);
+      router.push('/private');
+    } catch (error) {
+      console.warn(error);
+      alert(error);
+    }
+  }
+
+  return (
+    <div>
+      <h2>Please enter your OTP</h2>
+      <div>
+        <form onSubmit={handleSubmit}>
+          <div>
+            <label htmlFor="code">Code</label>
+            <input id="code" name="code" />
           </div>
           <div>
             <button type="submit">Login</button>
